@@ -1,0 +1,12 @@
+.column {
+    width: 20%;
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .column h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
