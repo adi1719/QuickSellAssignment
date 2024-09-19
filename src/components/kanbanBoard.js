@@ -1,4 +1,3 @@
-// src/components/KanbanBoard.js
 import React, { useState, useEffect } from 'react';
 import { fetchTickets } from '../api';
 import Column from './Column';
@@ -8,14 +7,27 @@ const KanbanBoard = () => {
   const [tickets, setTickets] = useState([]);
   const [groupBy, setGroupBy] = useState('status');
   const [sortBy, setSortBy] = useState('priority');
+  const [error, setError] = useState(null); // For handling errors
 
-  useEffect(() => {
+  useEffect(() => { 
     const getTickets = async () => {
-      const data = await fetchTickets();
-      setTickets(data);
+      try {
+        const data = await fetchTickets();
+        // Check if data.tickets is an array
+        if (data && Array.isArray(data.tickets)) {
+          setTickets(data.tickets);
+        } else {
+          setTickets([]); // Set to empty array if the data is invalid
+          setError('Invalid data format received');
+        }
+      } catch (err) {
+        console.error("Error fetching tickets:", err);
+        setError("Failed to load tickets");
+      }
     };
     getTickets();
   }, []);
+  
 
   const groupTickets = (tickets, groupBy) => {
     const grouped = {};
@@ -44,6 +56,11 @@ const KanbanBoard = () => {
     return sorted;
   };
 
+  // Show error message if there was an issue
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
   const groupedTickets = groupTickets(tickets, groupBy);
   const sortedTickets = sortTickets(groupedTickets, sortBy);
 
@@ -66,16 +83,3 @@ const KanbanBoard = () => {
 };
 
 export default KanbanBoard;
-
-useEffect(() => {
-    const savedGroupBy = localStorage.getItem('groupBy');
-    const savedSortBy = localStorage.getItem('sortBy');
-    if (savedGroupBy) setGroupBy(savedGroupBy);
-    if (savedSortBy) setSortBy(savedSortBy);
-  }, []);
-  
-  useEffect(() => {
-    localStorage.setItem('groupBy', groupBy);
-    localStorage.setItem('sortBy', sortBy);
-  }, [groupBy, sortBy]);
-  
